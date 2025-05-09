@@ -1,12 +1,215 @@
 <!DOCTYPE html>
 <html lang="en">
-<title>One Piece RPG Multiplayer game</title>
-<link rel="icon" href="Favicon.jpg" type='image/x-icon">
 <head>
-	<title>Phoenix's game</title>
-	<link rel="icon" href="Favicon.jpg" type="image/x-icon">
+  <title>Phoenix's game</title>
+  <link rel="icon" href="Favicon.jpg" type="image/x-icon">
+  <style>
+    body {
+      background-color: #f0efeb;
+      font-family: 'Trebuchet MS', sans-serif;
+      color: #333;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+    #game-container {
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      background-color: #fff;
+    }
+    #stats {
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 5px;
+      background-color: #008CBA;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1em;
+    }
+    button:hover {
+      background-color: #005f73;
+    }
+    #game-text {
+      min-height: 150px;
+      margin-bottom: 20px;
+    }
+    h2 {
+      margin-top: 0;
+    }
+  </style>	
 </head>
 <body>
-	<div>This One piece based game is still in the making, thank you for your patience.</div>
+  <div id="game-container">
+    <div id="stats">Health: 100 | Soul: 0</div>
+    <div id="game-text"></div>
+    <div id="game-choices"></div>
+  </div>
+
+  <script>
+    // Global player stats
+    let health = 100;
+    let soul = 0;
+
+    // Function to update the stats display
+    function updateStats() {
+      document.getElementById('stats').innerHTML = "Health: " + health + " | Soul: " + soul;
+    }
+
+    // Utility to display game text and dynamic choice buttons
+    function showScene(text, choices) {
+      document.getElementById('game-text').innerHTML = text;
+      const choicesDiv = document.getElementById('game-choices');
+      choicesDiv.innerHTML = "";
+      choices.forEach(choice => {
+        const btn = document.createElement("button");
+        btn.textContent = choice.text;
+        btn.onclick = choice.action;
+        choicesDiv.appendChild(btn);
+      });
+    }
+
+    // The game’s scenes
+
+    // Intro scene / Title screen
+    function showIntro() {
+      // Reset stats for a new game
+      health = 100;
+      soul = 0;
+      updateStats();
+      showScene(
+        "<h2>One Piece: Souls of the Sea</h2>" +
+        "<p>Welcome, brave pirate! The legends of the Grand Line and a mysterious power known as the Soul of the Sea await you.</p>",
+        [
+          { text: "Begin Adventure", action: scene1 }
+        ]
+      );
+    }
+
+    // Scene 1: Starting point
+    function scene1() {
+      showScene(
+        "<p>You awaken on the shores of East Blue. The salty breeze carries whispers of legendary pirates and of a mystical soul power that many have sought.</p>" +
+        "<p>Do you head into the local tavern in search of clues or set sail immediately in pursuit of adventure?</p>",
+        [
+          { text: "Visit the Tavern", action: scene2 },
+          { text: "Set Sail", action: scene3 }
+        ]
+      );
+    }
+
+    // Scene 2: Tavern exploration
+    function scene2() {
+      showScene(
+        "<p>The tavern is dimly lit, filled with rumors and secrets. In the corner, an old man with eyes that seem to see into your soul beckons you closer.</p>",
+        [
+          { text: "Listen to the old man", action: scene4 },
+          { text: "Start a bar brawl", action: scene5 }  // This leads directly to combat
+        ]
+      );
+    }
+
+    // Scene 3: Setting sail immediately
+    function scene3() {
+      showScene(
+        "<p>You set sail into the vast ocean. Just as you begin to feel the thrill of adventure, dark clouds loom—a hostile enemy vessel is approaching fast!</p>",
+        [
+          { text: "Prepare to Fight", action: scene5 },
+          { text: "Attempt to Flee", action: scene6 }
+        ]
+      );
+    }
+
+    // Scene 4: The old man's tale and soul awakening
+    function scene4() {
+      // Boost the player stats as a reward for listening
+      health += 10;
+      soul += 20;
+      updateStats();
+      showScene(
+        "<p>The old man recounts tales of a pirate era when the Soul of the Sea granted unimaginable power to those pure of heart. As his words wash over you, you feel a surge within—your soul awakens.</p>",
+        [
+          { text: "Continue", action: scene7 }
+        ]
+      );
+    }
+
+    // Scene 5: Battle scenario
+    function scene5() {
+      showScene(
+        "<p>The clash begins! You face a formidable enemy. Summon your resolve and click 'Attack' to strike.</p>",
+        [
+          { text: "Attack", action: attack }
+        ]
+      );
+    }
+
+    // Scene 6: Fleeing that forces you to fight
+    function scene6() {
+      showScene(
+        "<p>You try to flee, but the enemy relentlessly pursues you. There's no escape—you must face them head on!</p>",
+        [
+          { text: "Attack", action: attack }
+        ]
+      );
+    }
+
+    // The attack function simulates a battle using a random roll
+    function attack() {
+      // Generate a random roll between 1 and 10
+      const roll = Math.floor(Math.random() * 10) + 1;
+      if (roll >= 5) {
+        // Successful attack outcome
+        soul += 30;
+        updateStats();
+        showScene(
+          "<p>Your attack strikes true! The enemy falls, and you feel an intense surge as you absorb a fragment of its soul energy.</p>" +
+          "<p>(Roll: " + roll + ")</p>",
+          [
+            { text: "Continue", action: scene7 }
+          ]
+        );
+      } else {
+        // Failed attack outcome
+        health -= 30;
+        updateStats();
+        if (health <= 0) {
+          showScene(
+            "<p>Your attack misses and you take a devastating blow... Your vision fades as you collapse on the deck.<br><strong>Game Over</strong></p>",
+            [
+              { text: "Restart", action: showIntro }
+            ]
+          );
+        } else {
+          showScene(
+            "<p>Your attack falters and you suffer a counterstrike! You lose some health.<br>(Roll: " + roll + ")</p>",
+            [
+              { text: "Try Again", action: scene5 }
+            ]
+          );
+        }
+      }
+    }
+
+    // Scene 7: Victory and new horizons
+    function scene7() {
+      showScene(
+        "<p>Standing tall on the deck with the endless ocean before you, you feel your newfound soul power pulsing like a second heartbeat. The world holds countless secrets—this journey is just beginning.</p>",
+        [
+          { text: "Play Again", action: showIntro }
+        ]
+      );
+    }
+
+    // Start the adventure when the page loads
+    document.addEventListener("DOMContentLoaded", showIntro);
+  </script>
 </body>
 </html>
